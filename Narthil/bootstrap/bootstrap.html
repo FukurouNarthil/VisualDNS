@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>bootstrap网页</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+		<script src="./bootstrap/js/popper.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	    <style>
+	    	body{
+	    		text-align: center;
+	    		margin: 0;
+	    		padding: 0;
+	    	}
+	    	.box{
+	    		height: 200px;
+	    		margin-bottom: 60px;
+	    		padding: 15px;
+	    	}
+	    	.carousel-inner .item img{
+	    		width: 100%;
+	    	}
+	    	.container{
+	    		margin-top: 60px;
+	    	}
+	    	.container .box img{
+	    		width: 80px;
+	    		border-radius: 50%;
+	    		margin-bottom: 15px;
+	    	}
+	    	@media (min-width: 992px) {
+	    		.container {
+	    			width: 940px;
+	    		}
+	    	}
+	    	@media (min-width: 1200px) {
+	    		.container {
+	    			width: 1170px;
+	    		}
+	    	}
+	    	@media (min-width: 1700px) {
+	    		.container {
+	    			width: 1470px;
+	    		}
+	    	}
+	    </style>
+	</head>
+	<body>
+		<nav class="navbar navbar-default" role="navigation">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="#">橙旭园</a>
+				</div>
+				<ul class="nav navbar-nav navbar-right">
+					<li><a href="#"><span class="glyphicon glyphicon-user"></span> 注册</a></li>
+					<li><a href="#"><span class="glyphicon glyphicon-log-in"></span> 登录</a></li>
+				</ul>
+			</div>
+		</nav>
+		<div id="myCarousel" class="carousel slide">
+			<pl class="carousel-indicators">
+				<li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+				<li data-target="#myCarousel" data-slide-to="1"></li>
+				<li data-target="#myCarousel" data-slide-to="2"></li>
+			</pl>
+			<div class="carousel-inner">
+				<div class="item active">
+					<img src="https://static1.bcjiaoyu.com/bootstrap-banner01.jpg" alt="1">
+					<div class="carousel-caption">猎豹</div>
+				</div>
+				<div class="item">
+					<img src="https://static1.bcjiaoyu.com/bootstrap-banner02.jpg" alt="2">
+					<div class="carousel-caption">天空</div>
+				</div>
+				<div class="item">
+					<img src="https://static1.bcjiaoyu.com/bootstrap-banner03.jpg" alt="3">
+					<div class="carousel-caption">大海</div>
+				</div>
+			</div>
+		</div>
+		<div class="container">
+			<div class="row">
+				<div class="box col-lg-2 col-lg-offset-2 col-md-3 col-md-offset-0 col-sm-4 col-sm-offset-2 col-xs-8 col-xs-offset-2">
+					<header>
+						<img src="https://www.cxy61.com/statics/images/index-video1.png" alt="">
+						<p>比尔·盖茨</p>
+					</header>
+					<p>比尔·盖茨是一名美国著名企业家、投资者、软件工程师、慈善家。他与保罗·艾伦一起创建了微软公司，曾任微软董事长、CEO和首席软件设计师，并持有公司超过8%的普通股，也是公司最大的个人股东。</p>
+				</div>
+				<div class="box col-lg-2 col-lg-offset-0 col-md-3 col-md-offset-0 col-sm-4 col-sm-offset-0 col-xs-8 col-xs-offset-2">
+					<header>
+						<img src="https://www.cxy61.com/statics/images/index-video3.png" alt="">
+						<p>扎克伯格</p>
+					</header>
+					<p>扎克伯格出生于美国纽约州，是知名的社交网站Facebook的创始人、董事长兼首席执行官，同时也是一名软件设计师。Facebook是由他和哈佛大学的同学于2004年共同创立，被誉为Facebook教主。</p>
+				</div>
+				<div class="box col-lg-2 col-lg-offset-0 col-md-3 col-md-offset-0 col-sm-4 col-sm-offset-2 col-xs-8 col-xs-offset-2">
+					<header>
+						<img src="https://www.cxy61.com/statics/images/index-video2.png" alt="">
+						<p>克里斯</p>
+					</header>
+					<p>克里斯·波什是一名前美国NBA职业篮球运动员，曾效力于多伦多猛龙、迈阿密热火队，司职大前锋和中锋。</p>
+				</div>
+				<div class="box col-lg-2 col-lg-offset-0 col-md-3 col-md-offset-0 col-sm-4 col-sm-offset-0 col-xs-8 col-xs-offset-2">
+					<header>
+						<img src="https://resource.bcgame-face2face.haorenao.cn/cb.png" alt="">
+						<p>斌叔</p>
+					</header>
+					<p>斌叔是前微软、思科高级工程师，参与Windows7开发，14岁开始学习编程，全栈工程师。创办橙旭园儿童编程潜心研究儿童编程教学方法，教学风格受世界各地学员喜爱。</p>
+				</div>
+			</div>
+		</div>
+		<script>
+			$(function(){
+				$('.carousel').carousel({
+					interval: 2000,
+					wrap: true
+				})
+			})
+		</script>
+	</body>
+</html>
