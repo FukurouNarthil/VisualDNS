@@ -1,0 +1,338 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+
+h1 {
+  position: absolute;
+  top: 500px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 18px;
+  text-align: center;
+  width: 960px;
+}
+.country{
+  stroke:white;
+  stroke-width: 2px;
+}
+.border{
+  stroke:white;
+  stroke-width: 3px;
+  fill:none;
+}
+.globe{
+  stroke:black;
+  stroke-width: 3.5px;
+  fill:none;
+}
+
+.route{
+        stroke:cornflowerblue;
+        stroke-width: 3px;
+        fill:none;
+}
+
+
+</style>
+<script src="d3.js"></script>
+<script src="queue.js"></script>
+<script src="topojson.js"></script>
+<script>
+
+</script>
+<script>
+function reqListener() {
+  var response_mock = this.responseText;
+  //console.log(response_mock);
+  var dns_records_str = '[{"domain": "cn", "ip": "", "country_name": "", "region_name": "","city": "", "latitude": 0, "longitude": 0, "authnss": [{"domain": "a.dns.cn", "ip": "203.119.25.1","country_name": "China", "region_name": "Beijing", "city": "Beijing", "latitude": 39.9289, "longitude": 116.3883}, {"domain": "b.dns.cn", "ip": "203.119.26.1", "country_name": "China", "region_name": "Beijing", "city": "Beijing", "latitude": 39.9289, "longitude": 116.3883}, {"domain": "c.dns.cn", "ip": "203.119.27.1", "country_name": "China", "region_name": "Beijing", "city": "Beijing", "latitude": 39.9289, "longitude": 116.3883}, {"domain": "d.dns.cn", "ip": "2001:dc7:1000::1", "country_name": "China", "region_name": "", "city": "", "latitude": 35, "longitude": 105}, {"domain": "e.dns.cn", "ip": "203.119.29.1", "country_name": "China", "region_name": "Beijing", "city": "Beijing", "latitude": 39.9289, "longitude": 116.3883}, {"domain": "f.dns.cn", "ip": "195.219.8.90", "country_name": "United Kingdom", "region_name": "", "city": "", "latitude": 51.4964, "longitude": -0.1224}, {"domain": "g.dns.cn", "ip": "66.198.183.65", "country_name": "United States", "region_name": "New York", "city": "New York", "latitude": 40.7214, "longitude": -74.0052}]}, {"domain": "edu.cn", "ip": "202.112.0.36", "country_name": "China", "region_name": "Beijing", "city": "Beijing", "latitude": 39.9289, "longitude": 116.3883, "authnss": [{"domain": "DNS.edu.cn", "ip": "202.112.0.35", "country_name": "China", "region_name": "Beijing", "city": "Beijing", "latitude": 39.9289, "longitude": 116.3883}, {"domain": "NS2.CUHK.EDU.HK", "ip": "137.189.6.21", "country_name": "Hong Kong", "region_name": "", "city": "", "latitude": 22.25, "longitude": 114.1667}, {"domain": "NS2.CERNET.NET", "ip": "2001:da8:1:100::22", "country_name": "China", "region_name": "", "city": "", "latitude": 35, "longitude": 105}, {"domain": "DNS2.edu.cn","ip":"2001:da8:1:100::22", "country_name": "China", "region_name": "", "city": "", "latitude": 35, "longitude": 105}, {"domain": "DENEB.DFN.DE", "ip": "192.76.176.9", "country_name": "Germany", "region_name": "", "city": "", "latitude": 51.2993, "longitude": 9.491}]}]';
+
+var dns_records_obj = JSON.parse(dns_records_str);
+
+var content = '';
+var domains = new Array();
+var longilatitudeArr = [];
+//var leng = [];
+
+for(var j in dns_records_obj){
+
+content += 'domain : ' + dns_records_obj[j].domain + '<br/>' + 'ip : ' + dns_records_obj[j].ip + '<br/>' + 'country_name : '  + dns_records_obj[j].country_name + '<br/>' + 'region_name : ' + dns_records_obj[j].region_name + '<br/>' + 'latitude : ' + dns_records_obj[j].latitude + '<br/>' + 'longitude : ' + dns_records_obj[j].longitude + '<br/>' + 'authnss : ' + '<br/>';
+
+var longilatitude = [];
+//var domains = new Array();
+
+longilatitude[0] = parseFloat(dns_records_obj[j].longitude);
+longilatitude[1] = parseFloat(dns_records_obj[j].latitude);
+
+domains[j] = new Array();
+domains[j][0] = dns_records_obj[j].domain;
+
+//domainArr.push(dns_records_obj[j].domain);
+
+//console.log(longilatitude);
+
+//var domainArr = [];
+//var longilatitudeArr = new Array();
+
+ longilatitudeArr[j] = [];
+longilatitudeArr[j][0] = [];
+longilatitudeArr[j][0][0] = longilatitude[0];
+longilatitudeArr[j][0][1] = longilatitude[1];
+
+
+//console.log(domainArr);
+//console.log("lo : " + longilatitudeArr);
+
+for(var i in dns_records_obj[j].authnss) {
+ //console.log(i,j);
+ content += 'domain : ' + dns_records_obj[j].authnss[i].domain + '<br/>';
+ content += 'country_name : ' + dns_records_obj[j].authnss[i].country_name + '<br/>';
+ content += 'region_name : ' + dns_records_obj[j].authnss[i].region_name + '<br/>';
+ content += 'city : ' + dns_records_obj[j].authnss[i].city + '<br/>';
+ content += 'latitude : ' + dns_records_obj[j].authnss[i].latitude + '<br/>';
+ content += 'longitude : ' + dns_records_obj[j].authnss[i].longitude + '<br/>';
+
+ i = parseInt(i);
+ domains[j][i+1] = dns_records_obj[j].authnss[i].domain;
+ longilatitudeArr[j][i+1] = [];
+ longilatitudeArr[j][i+1].push(parseFloat(dns_records_obj[j].authnss[i].longitude));
+ longilatitudeArr[j][i+1].push(parseFloat(dns_records_obj[j].authnss[i].latitude));
+}
+ content += '<br/>';
+
+}
+
+console.log(longilatitudeArr[0]);
+console.log(longilatitudeArr[1]);
+console.log(longilatitudeArr[0].length);
+console.log(longilatitudeArr[1].length);
+createLink(longilatitudeArr);
+
+
+document.getElementById("result").innerHTML = content;
+
+
+}
+
+ function ajaxGet() {
+
+  var oReq = new XMLHttpRequest();
+  oReq.onload = reqListener;
+  var params = "?domain=" + document.getElementById('domain').value;
+  oReq.open("get","get.php" + params, true);
+  oReq.send();
+ }
+
+ //ajaxGet();
+
+
+ </script>
+ </head>
+
+<body>
+  <div id="inquiry">
+  <form method = "post">
+   <input type="text" value="" id="domain"/>
+   <button type="button" onclick="javascript:ajaxGet();">Query</button>
+  </form>
+  </div>
+
+  <div id="result" style="position:absolute; top: 100px;">Here's the result:<br/></div>
+ <div id="Svg">This is a map.</div>
+ <script>
+var width = 1280,
+    height = 960;
+
+var projection = d3.geo.orthographic()
+    .translate([width / 2+400, height / 2+150])
+    .scale(500)
+    .clipAngle(90);
+
+var sky = d3.geo.orthographic()
+    .translate([width / 2+400, height / 2+150])
+    .scale(550)
+    .clipAngle(90);
+
+
+
+
+var svg = d3.select("body").append("svg")
+            .attr("width",width+1000)
+            .attr("height",height+1000);
+
+var arclinks = [];
+
+var path = d3.geo.path()
+    .projection(projection);
+
+var title = d3.select("h1");
+
+var turn_red = [];
+function createLink(array)
+{
+	console.log(array.length);
+    arclinks = [];
+
+    for(var i =0;i<array.length-1;i++)
+    {
+        for(var j = 0;j<array[i].length;j++)
+        {
+            for(var k = 0;k<array[i+1].length;k++)
+            {
+                if(!((array[i][j][0]==0)&&(array[i][j][1]==0))) {
+                  if(array[i][j][0]!=array[i+1][k][0]&&array[i][j][1]!=array[i+1][k][1]) {
+                    var Feature = { type: "LineString", coordinates: [array[i][j],array[i+1][k]]};
+                    console.log(Feature);
+                    arclinks.push(Feature);
+                }
+              }
+            }
+        }
+    }
+}
+queue()
+    .defer(d3.json, "world-110m.json")
+    .defer(d3.tsv, "world-country-names.tsv")
+    .await(ready);
+
+function ready(error, world, names) {
+  if (error) throw error;
+
+  var globe = {type: "Sphere"},
+      land = topojson.feature(world, world.objects.land),
+      countries = topojson.feature(world, world.objects.countries).features,
+      borders = topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; }),
+      i = -1,
+      n = countries.length;
+
+function Mark(){
+    if(arclinks.length<400)
+    {
+        var a = Math.ceil(Math.random()*100%30);
+        var b = Math.ceil(Math.random()*100%30);
+        var source = d3.geo.centroid(countries[a]);
+        var target = d3.geo.centroid(countries[b]);
+        //console.log(source);
+        if(a!=b)
+        {
+            var Feature = { type: "LineString", coordinates: [source,target]};
+            arclinks.push(Feature);
+            turn_red[source] = a;
+            turn_red[target] = b;
+        }
+    }
+}
+
+function fade_at_edge(d) {
+    var centerPos = projection.invert([width / 2+400, height / 2+150]),
+        arc = d3.geo.greatArc(),
+        start, end;
+    start = d.coordinates[0];
+    end = d.coordinates[1];
+
+    var start_dist = 1.57 - arc.distance({source: start, target: centerPos}),
+        end_dist = 1.57 - arc.distance({source: end, target: centerPos});
+
+    var fade = d3.scale.pow().exponent(2).domain([-.1,0]).range([0,.1])
+    var dist = start_dist < end_dist ? start_dist : end_dist;
+
+    return fade(dist)
+}
+function location_along_arc(start,end,loc)
+{
+    var liner = d3.scale.linear()
+                .domain([0,1])
+                .range([start,end]);
+    return liner(0.5);
+}
+
+function flying_arc(){
+    var pts = arguments[0];
+    if(pts)
+    {
+    var source = pts.coordinates[0];
+    var target = pts.coordinates[1];
+    var mid = location_along_arc(source,target,0.5);
+    var result = [projection(source),sky(mid),projection(target)];
+    return result;
+    }
+}
+
+var swoosh = d3.svg.line()
+                .x(function(d){return d[0];})
+                .y(function(d){return d[1];})
+                .interpolate("cardinal")
+                .tension(.0);
+
+
+  countries = countries.filter(function(d) {
+    return names.some(function(n) {
+      if (d.id == n.id) return d.name = n.name;
+    });
+  }).sort(function(a, b) {
+    return a.name.localeCompare(b.name);
+  });
+  var x = 0;
+
+
+  var g = svg.append("g");
+  var Lk = svg.append("g");
+
+
+    arclinks.forEach(function(d)
+        {
+            var a = d.coordinates[0];
+            var b = d.coordinates[1];
+            Lk.append("path")
+                    .attr("class","route")
+                    .attr("d",function(){return swoosh(flying_arc(d));})
+                    .attr("opacity", function(d) {return fade_at_edge(d);});
+        });
+
+
+    g.append("path")
+        .attr("class","land")
+        .datum(land)
+        .attr("d",path)
+        .style("fill",function(d,i){
+        return "#ccc"
+        });
+    g.append("path")
+        .attr("class","border")
+        .datum(borders)
+        .attr("d",path);
+    g.append("path")
+        .attr("class","globe")
+        .datum(globe)
+        .attr("d",path);
+
+  function RRR() {
+
+        Lk.selectAll("path")
+         .data(arclinks)
+         .enter()
+         .append("path")
+         .attr("class","route");
+
+        Lk.selectAll("path")
+        .data(arclinks)
+        .attr("d",function(d){return swoosh(flying_arc(d))})
+        .attr("opacity", function(d) {return fade_at_edge(d);});
+
+        Lk.selectAll("path")
+        .data(arclinks)
+        .exit()
+            .remove();
+
+        g.selectAll("path")
+        .attr("d",path);
+
+        projection.rotate([(x%360-180),0,0]);
+        sky.rotate([(x%360-180),0,0]);
+        x = x+0.21;
+  };
+  setInterval(RRR,0.1);
+}
+ </script>
+</body>
+</html>
