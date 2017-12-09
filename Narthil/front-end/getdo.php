@@ -1,9 +1,5 @@
 <?php
 
-
-	# 库 地址有效性 laravel
-	# 分割域名
-
 	# 验证网址有效性
 	function checkUrl($url)
 	{
@@ -16,7 +12,7 @@
 		$contents = curl_exec($ch);
 		if(false == $contents)
 		{
-			echo 'Curl error: ' . curl_error($ch);
+			#echo 'Curl error: ' . curl_error($ch);
 			return false;
 		}
 		else
@@ -39,16 +35,11 @@
 	function getArray($quest)
 	{
 		$dns = dns_get_record($quest);
-		// print_r($dns);
-		// echo "<br>";
 
 		# 分割url
 		$str = explode('.', $quest);
 		$n = sizeof($str) - 1;
 		$addr = $str[$n];
-
-		print($addr);
-		echo "<br/>";
 
 		$n = $n - 1;
 
@@ -59,8 +50,6 @@
 			# 数组
 			$arr = array();
 			$addr = $str[$n].".".$addr;
-			print($addr);
-			echo "<br/>";
 
 			$dns = dns_get_record($addr);
 			foreach ($dns as $d)
@@ -75,11 +64,6 @@
                     // }
 
 					$info = getInfo($d['target']);
-
-					print_r($d);
-					echo "<br/>";
-					print_r($info);
-					echo "<br/>";
 
 					# 构建数组
 					$arr_b = array("domain"=>$d['target'],"ip"=>$info->ip,"country_name"=>$info->country_name,"region_name"=>$info->region_name,"city"=>$info->city,"latitude"=>$info->latitude,"longitude"=>$info->longitude);
@@ -97,13 +81,7 @@
 		}
 
 		$info = getInfo($quest);
-		// print_r($info);
-		// echo "<br>";
-
-		// print_r($bag);
-
 		$fin = json_encode($bag);
-		echo "<br/>";
 		echo $fin;
 		return $fin;
 	}
