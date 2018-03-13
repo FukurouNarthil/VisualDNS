@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class Dnsrecords extends Migration
+class Frequencyrecords extends Migration
 {
     /**
      * Run the migrations.
@@ -13,18 +13,13 @@ class Dnsrecords extends Migration
      */
     public function up()
     {
-        Schema::create('dnsrecords',function(Blueprint $table)
+        //
+        Schema::create('frequencyrecords',function(Blueprint $table)
         {
 
             $table->increments('id');
-            $table->string('belong');
+            $table->unsignedInteger('country');
             $table->string('domain');
-            $table->ipAddress('ip');
-            $table->string('country_name');
-            $table->string('region_name');
-            $table->string('city');
-            $table->float('latitude');
-            $table->float('longitude');
             $table->timestamps();
 
         });
