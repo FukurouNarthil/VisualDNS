@@ -117,6 +117,11 @@ function inquire($quest)
     if($result->count())
     {
         $addr = getPieces($quest);
+	$temp = \App\Dnsrecord::where('belong',$addr[0])->get()->count();
+	if(!$temp)
+	{
+		return $bag;
+	}
         $n = sizeof($addr);
         $i = 0;
         do {
@@ -158,17 +163,5 @@ function inquire($quest)
 
         return $bag;
     }
-}
-
-#取出推荐top5
-function top5()
-{
-    $result = \App\Frequencyrecord::orderBy('country')->get();
-    $top = array();
-    for($i=0; $i<5; $i++){
-        $top[] = $result[$i]->domain;
-    }
-
-    return json_encode($top);
 }
 ?>

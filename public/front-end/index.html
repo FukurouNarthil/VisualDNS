@@ -1,54 +1,197 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8" />
-<!--地球的样式表-->
-<style>
-  h1 {
-    position: absolute;
-    top: 500px;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 18px;
-    text-align: center;
-    width: 960px;
-  }
-  .country{
-    stroke:white;
-    stroke-width: 2px;
-  }
-  .border{
-    stroke:white;
-    stroke-width: 3px;
-    fill:none;
-  }
-  .globe{
-    stroke:black;
-    stroke-width: 3.5px;
-    fill:none;
-  }
-  .route{
-      stroke:cornflowerblue;
-      stroke-width: 3px;
-      fill:none;
-    }
-</style>
-<!--导入d3-->
-<script src="d3.js"></script>
-<script src="queue.js"></script>
-<script src="topojson.js"></script>
-<!--前后端交互部分的代码-->
-<script>
-  //事件监听器，用于接收后端返回的数据并进行拆分
+  <title>VisualDNS</title>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="./scripts/jquery-3.3.1.js"></script>
+  <script type="text/javascript" src="./scripts/bootstrap.js"></script>
+  <script src="./scripts/d3.js"></script>
+  <script src="./scripts/queue.js"></script>
+  <script src="./scripts/topojson.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script type="text/javascript" >
+      //显示轮播图
+      function showMessage(obj) {
+        var vDiv = document.getElementById(obj);
+        vDiv.style.display = 'block';
+        var inputBox = document.getElementById("inquiry");
+        inputBox.style.top = 100 + "px";
+        inputBox.style.right = -200 + "px";
+        var domain = document.getElementById("recommend");
+        domain.style.display = "block";
+      }
+      //隐藏轮播图
+      function hideMessage() {
+        var vDiv = document.getElementById("inquiry");
+        vDiv.style.display = 'none';
+        var pic = document.getElementById("wrapper");
+        pic.style.display = "none";
+        var recommend = document.getElementById("recommend");
+        recommend.style.display = "none";
+        var result = document.getElementById("result");
+        result.style.display = "block";
+		var title = document.getElementById("titles");
+		title.style.display = "none";
+      }
+
+//轮播代码
+      var currentShowPageIndex = 0; //当前页索引
+      var animateTimeout = null;
+      var isWheelAnimating = false; //是否滚动
+      var isWheelUp = function(event) {
+        event = event || window.event;
+        var up = true;
+        if(event.wheelDelta){//IE/Opera/Chrome
+          up = event.wheelDelta / 120 == 1 ? true : false;
+        }else{//Firefox
+          up = event.detail / 3 == 1 ? true : false;
+        }
+        return up;
+      }
+      var changeBar = function(prevIndex, index) {
+        var barUl = document.getElementById('barUl');
+        var barLiList = barUl.getElementsByTagName('li');
+        barLiList[prevIndex].className = "";
+        barLiList[index].className = "active";
+      }
+      var changePage = function(pageIndex) {
+        var showPageUl = document.getElementById('wheelUl');
+        changeBar(currentShowPageIndex, pageIndex);
+        currentShowPageIndex = pageIndex;
+        var left = -(currentShowPageIndex) * 800;
+        showPageUl.style.marginLeft = left + "px";
+        return;
+      }
+      var animate = function(obj, mode, from, to){
+        if(animateTimeout) {
+        clearTimeout(animateTimeout);
+      }
+        if(mode == "left") {
+          if(from > to) {
+              from = from - 50; //
+              obj.style.marginLeft = (from) + "px";
+              setTimeout(function(){
+                animate(obj, mode, from, to);
+            }, 30);
+        }else{
+            isWheelAnimating = false;
+          }
+          return;
+        }
+        if(from < to) {
+          from = from + 50;
+          obj.style.marginLeft = (from) + "px";
+          setTimeout(function(){
+            animate(obj, mode, from, to);
+          }, 30);
+        } else {
+            isWheelAnimating = false;
+          }
+      }
+
+
+      //鼠标滚动
+      var mouseWheel = function(event) {
+        if(isWheelAnimating) {
+            return;
+        }
+        isWheelAnimating = true;
+        var wheelUp = isWheelUp(event);
+        var showPageUl = document.getElementById('wheelUl');
+        var showPageUlWidth = parseInt(showPageUl.offsetWidth);
+        var showPageLiList = showPageUl.getElementsByTagName('li');
+        var showPageLiListLength = showPageLiList.length;
+        var wheelWrapperLeft = parseInt(document.getElementById('wheelWrapper').offsetLeft);
+        if(wheelUp && currentShowPageIndex < showPageLiListLength - 1) {
+          changeBar(currentShowPageIndex, currentShowPageIndex + 1);
+          currentShowPageIndex ++;
+          var top = -(currentShowPageIndex) * 800;
+          //animate(showPageUl, "right", -(currentShowPageIndex - 1) * 1000, -(currentShowPageIndex - 1) * 1000);
+          var from = -(currentShowPageIndex - 1) * 800;
+          var to = -(currentShowPageIndex) * 800;
+          animate(showPageUl, "left", from, to);
+          return;
+        }
+        if(!wheelUp && currentShowPageIndex > 0) {
+          changeBar(currentShowPageIndex, currentShowPageIndex - 1);
+          currentShowPageIndex --;
+          var from = -(currentShowPageIndex + 1) * 800;
+          var to = -(currentShowPageIndex) * 800;
+          animate(showPageUl, "right", from, to);
+          return;
+        }
+        isWheelAnimating = false;
+      };
+      if(document.addEventListener){
+        document.addEventListener('DOMMouseScroll',function(event) { mouseWheel(event); },false);
+      }
+      document.onmousewheel = function(event) { mouseWheel(event); }
+      window.onload = function(){
+      var barUl = document.getElementById('barUl');
+      var barLiList = barUl.getElementsByTagName('li');
+      for(var i=0,length=barLiList.length; i<length; i++) {
+        (function(index){
+            barLiList[index].onclick = function(){
+            changePage(index);
+            };
+        })(i);
+      }
+   }
+
+    //ajax代码，前后端交互部分
+	function showRecommend(){
+		var response_mock = this.responseText;
+		console.log(response_mock);
+		var topDomain = JSON.parse(response_mock);
+		var content = "";
+		for(var i in topDomain) {
+			var j = parseInt(i) + 1;
+			content += "Top " + j + " is " + topDomain[i] + "<br/>";
+		}
+		document.getElementById("recommend").innerHTML += content;
+	}
+	var switchx = 1;
+	
+    $(function(){
+	$("#domain").click(function(){
+		if(switchx){
+		var xhr = new XMLHttpRequest();
+		xhr.onload = showRecommend;
+		xhr.open("GET","gettop.php",true);
+		xhr.send();
+		switchx = 0;
+}
+	});
+	});
+	
+
+	function judgeEnter() {
+		var e=arguments.callee.caller.arguments[0]||window.event;
+		if(e.keyCode==13){
+			hideMessage();
+			ajaxGet();
+		}
+	}
+
+
+   //事件监听器，用于接收后端返回的数据并进行拆分
   function reqListener() {
     //这里responsText接收后端返回的数据
     var response_mock = this.responseText;
     console.log(response_mock);
     var dns_records_obj = JSON.parse(response_mock);
+    //console.log(dns_records_obj);
 
     var content = '';                       //拆完之后放进div里的内容
-    var domain_part = '';                   //数组里除了json串的其他内容
     var domains = new Array();              //存储json中的域名
     var longilatitudeArr = [];              //存储json中的经纬度
+    var countryArr = [];                    //country_name in JSON
+    var regionArr = [];                     //region_name in JSON
+
+    var totalCountries;
+
+    totalCountries = dns_records_obj.pop();
+
 
     //拆json字符串
     for(var j in dns_records_obj){
@@ -67,6 +210,11 @@
       longilatitudeArr[j][0] = [];
       longilatitudeArr[j][0][0] = longilatitude[0];
       longilatitudeArr[j][0][1] = longilatitude[1];
+      //and country_name or region_name
+      countryArr[j] = [];
+      countryArr[j][0] = dns_records_obj[j].country_name;
+      regionArr[j] = [];
+      regionArr[j][0] = dns_records_obj[j].region_name;
 
       //拆分authnss中的数据
       for(var i in dns_records_obj[j].authnss) {
@@ -83,13 +231,61 @@
         longilatitudeArr[j][i+1] = [];                                  //authnss里的经纬度
         longilatitudeArr[j][i+1].push(parseFloat(dns_records_obj[j].authnss[i].longitude));
         longilatitudeArr[j][i+1].push(parseFloat(dns_records_obj[j].authnss[i].latitude));
+        countryArr[j][i+1] = dns_records_obj[j].authnss[i].country_name;
+        regionArr[j][i+1] = dns_records_obj[j].authnss[i].region_name;
       }
       content += '<br/>';
 
     }
+	
+	for(var i in totalCountries) {
+	var temp = "";
+		temp = i + " : " + totalCountries[i] + "<br/>";
+	content += temp;		
+}
+	
 
+    var temp = new Array();
+    //create a key-value Array
+
+    function createArray() {
+      //var temp = new Array();
+      //var data = new Array();
+      for(var i in countryArr) {
+        i = parseInt(i);
+        temp[i] = new Array();
+        for(var j in countryArr[i]) {
+          var data = new Array();
+          data.push({
+            "country_name" : countryArr[i][j]
+          });
+          data.push({
+            "region_name" : regionArr[i][j]
+          });
+          data.push({
+            "coordinate" : longilatitudeArr[i][j]
+          });
+          //console.log(data);
+          temp[i].push(data);
+      }
+    }
+  }
+      createArray();
+
+      //console.log(temp[0][0]);
+      var cor = new Array();
+      for(var i in temp){
+      	cor[i] = new Array();
+        for(var j in temp[i]){
+            cor[i][j] = temp[i][j][2].coordinate;
+
+        }
+      }
+      //console.log("see");
+      //console.log(cor);
+      //console.log(longilatitudeArr);
     //把经纬度数组传送给地球部分画线
-    createLink(longilatitudeArr);
+    showMap(cor);
     //把content的添加到名为result的div中
     document.getElementById("result").innerHTML += content;
 }
@@ -104,165 +300,293 @@
    oReq.send();
   }
 
- </script>
- </head>
+    </script>
+    <style type="text/css" >
+      body {
+        margin:0;
+        background:url(./img/001) no-repeat;
+        background-size:cover;
+        overflow: hidden;
+      }
 
-<body>
-  <div id="inquiry">
-  <form method = "post">
-   <input type="text" value="" id="domain"/>
-   <button type="button" onclick="javascript:ajaxGet();">Query</button>
-  </form>
+      #titles {
+        text-align: center;
+        width: 400px;
+        margin: auto;
+        margin-top: 150px;
+        bottom: 0;
+        left: 0;
+        right: 0;
+      }
+      #titles h2{
+        color: #6495ED;
+      }
+      #titles h3{
+        color: #6495ED;
+      }
+      ul { list-style:none; margin:0; padding:0; }
+      li { float:left;}
+      .input-group {
+        width: 400px;
+        margin: auto;
+        top: 300px;
+        bottom: 0;
+        left: 0;
+        right: 0;
+      }
+      #domain {
+        width: 335px;
+        float: left;
+      }
+      .input-group span {
+        width: 60px;
+        height: 34px;
+      }
+      .input-group-addon {
+        cursor: pointer;
+      }
+      #wrapper {
+        width: 800px;
+        height: 500px;
+        left:40%;
+        bottom: 600px;
+        position: relative;
+        display: none;
+        overflow: hidden;
+      }
+      #wheelWrapper {
+      width: 800px;
+      height:500px;
+      position:fixed;
+      overflow:hidden;
+      }
+      #wheelUl {
+        width:2450px; height:500px;
+      }
+      #wheelUl {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      #barUl {
+        display: none;
+      }
+      #wheelUl>li { width:800px; }
+      .wheel {
+        width: 800px; height: 500px;;
+        border-radius:10px;
+        -webkit-border-radius:10px;
+        -moz-border-radius:10px;
+        line-height:300px;
+        font-size:100px;
+        text-align:center;
+      }
+      .wheel img{
+        width: 800px;
+        height: 500px;
+      }
+      #recommend {
+        width: 30%;
+        height: 500px;
+        position: relative;
+        left: 7%;
+        bottom: 100px;
+        background-color: white;
+        display: none;
+      }
+      #map {
+        width: 80%;
+        height: 80%;
+        float: right;
+        top:5%;
+        right:10%;
+
+      }
+      svg {
+        top: 5%;
+      }
+
+      #result {
+        width: 30%;
+        height: 800px;
+        position: absolute;
+        top: 50px;
+        left: 5%;
+        display: none;
+        color: white;
+      }
+
+      h1 {
+        position: absolute;
+        top: 500px;
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-size: 18px;
+        text-align: center;
+        width: 960px;
+      }
+      .country{
+        stroke:white;
+        stroke-width: 2px;
+      }
+      .border{
+        stroke:white;
+        stroke-width: 3px;
+        fill: none;
+      }
+      .globe{
+        stroke:black;
+        stroke-width: 3.5px;
+        fill:none;
+      }
+      .route{
+          stroke:cornflowerblue;
+          stroke-width: 3px;
+          fill:none;
+        }
+    </style>
+</head>
+<body id="body">
+  <div class="input-group" id="inquiry">
+    <div>
+      <input type="text" class="form-control" id="domain" placeholder="Input the domain" aria-describedby="basic-addon2"  onclick="javascript:showMessage('wrapper');"  onkeydown="javascript:judgeEnter();">
+      <span class="input-group-addon" style="background-color:#34E5FF; border: none" id="basic-addon2" onclick="javascript:ajaxGet(); javascript:hideMessage(); "">Query</span>
+    </div>
+  </div>
+  <div id="titles">
+    <h3>CYBERSPACE</h3>
+    <h2>BORDERLESS</h2>
   </div>
 
-  <div id="result" style="position:absolute; top: 100px;">Here's the result:<br/></div>
- <div id="Svg">This is a map.</div>
- <script>
-      var width = 1280,
-          height = 960;
+  <!--domain top5-->
+  <div id="recommend"></div>
 
-      var projection = d3.geo.orthographic()
-          .translate([width / 2+400, height / 2+150])
-          .scale(500)
-          .clipAngle(90);
+  <div id="wrapper">
+    <div id="wheelWrapper">
+      <ul id="wheelUl" >
+        <li>
+            <div class="wheel">
+              <img src="./img/1" />
+            </div>
+        </li>
+        <li>
+            <div class="wheel">
+              <img src="./img/2" />
+            </div>
+        </li>
+        <li>
+            <div class="wheel">
+              <img src="./img/3" />
+            </div>
+        </li>
+      </ul>
+      <ul id="barUl">
+        <li class="active">1</li>
+        <li>2</li>
+        <li>3</li>
+      </ul>
+    </div>
+    </div>
 
-      var sky = d3.geo.orthographic()
-          .translate([width / 2+400, height / 2+150])
-          .scale(550)
-          .clipAngle(90);
+
+  <!--result-->
+  <div id="result">here's the result.<br/></div>
+
+  <!--map-->
+  <div id="map" style="display:none;">
+    <script>
+
+   function showMap(array) {
+            var width = 1280,
+height = 800;
+var start_update = 0;
+var a_color = d3.rgb(25,25,112);
+var b_color = d3.rgb(100,149,237);
+var compute_color = d3.interpolate(a_color,b_color);
+
+var projection = d3.geo.mercator()
+    .translate([width / 2+300, height / 2+200])
+    .scale(200)
 
 var svg = d3.select("body").append("svg")
             .attr("width",width+1000)
             .attr("height",height+1000);
 
-var arclinks = [];
-
 var path = d3.geo.path()
     .projection(projection);
 
 var title = d3.select("h1");
-
 var turn_red = [];
-function createLink(array)
-{
-    arclinks = [];
 
+
+
+var arclinks = [];
+
+function updatelink()
+{
+    start_update = 1;
+}
+function createLink()
+{
+  //console.log(array);
+    arclinks = [];
     for(var i =0;i<array.length-1;i++)
     {
         for(var j = 0;j<array[i].length;j++)
         {
             for(var k = 0;k<array[i+1].length;k++)
             {
-                if(!((array[i][j][0]==0)&&(array[i][j][1]==0))) {
-                  if(array[i][j][0]!=array[i+1][k][0]&&array[i][j][1]!=array[i+1][k][1]) {
-                    var Feature = { type: "LineString", coordinates: [array[i][j],array[i+1][k]]};
+                var Feature = { type: "LineString",turntime:0, coordinates: [array[i][j],array[i+1][k]]};
+		//var temp = {name:"ds",coordinates:[x,y]};
+                arclinks.push(Feature);
+                //updatelink();
 
-                    arclinks.push(Feature);
-                }
-              }
+
             }
         }
     }
 }
+
+createLink();
+var arc = d3.geo.greatArc()
+      .source(function(d) { return d.coordinates[0]; })
+      .target(function(d) { return d.coordinates[1]; });
+
+var linePath=d3.svg.line()
+                .interpolate("basis")
+                ;
+
+
 queue()
     .defer(d3.json, "world-110m.json")
     .defer(d3.tsv, "world-country-names.tsv")
     .await(ready);
 
-function ready(error, world, names) {
-  if (error) throw error;
-
-  var globe = {type: "Sphere"},
-      land = topojson.feature(world, world.objects.land),
+function ready(error, world, names){
+    if (error) throw error;
+    var land = topojson.feature(world, world.objects.land),
       countries = topojson.feature(world, world.objects.countries).features,
       borders = topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; }),
       i = -1,
       n = countries.length;
 
-function Mark(){
-    if(arclinks.length<400)
-    {
-        var a = Math.ceil(Math.random()*100%30);
-        var b = Math.ceil(Math.random()*100%30);
-        var source = d3.geo.centroid(countries[a]);
-        var target = d3.geo.centroid(countries[b]);
-        //console.log(source);
-        if(a!=b)
-        {
-            var Feature = { type: "LineString", coordinates: [source,target]};
-            arclinks.push(Feature);
-            turn_red[source] = a;
-            turn_red[target] = b;
-        }
-    }
-}
-
-function fade_at_edge(d) {
-    var centerPos = projection.invert([width / 2+400, height / 2+150]),
-        arc = d3.geo.greatArc(),
-        start, end;
-    start = d.coordinates[0];
-    end = d.coordinates[1];
-
-    var start_dist = 1.57 - arc.distance({source: start, target: centerPos}),
-        end_dist = 1.57 - arc.distance({source: end, target: centerPos});
-
-    var fade = d3.scale.pow().exponent(2).domain([-.1,0]).range([0,.1])
-    var dist = start_dist < end_dist ? start_dist : end_dist;
-
-    return fade(dist)
-}
-function location_along_arc(start,end,loc)
-{
-    var liner = d3.scale.linear()
-                .domain([0,1])
-                .range([start,end]);
-    return liner(0.5);
-}
-
-function flying_arc(){
-    var pts = arguments[0];
-    if(pts)
-    {
-    var source = pts.coordinates[0];
-    var target = pts.coordinates[1];
-    var mid = location_along_arc(source,target,0.5);
-    var result = [projection(source),sky(mid),projection(target)];
-    return result;
-    }
-}
-
-var swoosh = d3.svg.line()
-                .x(function(d){return d[0];})
-                .y(function(d){return d[1];})
-                .interpolate("cardinal")
-                .tension(.0);
-
-
-  countries = countries.filter(function(d) {
+    countries = countries.filter(function(d) {
     return names.some(function(n) {
       if (d.id == n.id) return d.name = n.name;
     });
   }).sort(function(a, b) {
     return a.name.localeCompare(b.name);
   });
-  var x = 0;
-
-
-  var g = svg.append("g");
-  var Lk = svg.append("g");
-
-
+    var x = 0;
+    var g = svg.append("g");
+    var Lk = svg.append("g");
     arclinks.forEach(function(d)
-        {
-            var a = d.coordinates[0];
-            var b = d.coordinates[1];
-            Lk.append("path")
-                    .attr("class","route")
-                    .attr("d",function(){return swoosh(flying_arc(d));})
-                    .attr("opacity", function(d) {return fade_at_edge(d);});
-        });
-
+    {
+        var a = d.coordinates[0];
+        var b = d.coordinates[1];
+        Lk.append("path")
+                .attr("class","route")
+                .attr("d",path);
+    });
 
     g.append("path")
         .attr("class","land")
@@ -275,12 +599,8 @@ var swoosh = d3.svg.line()
         .attr("class","border")
         .datum(borders)
         .attr("d",path);
-    g.append("path")
-        .attr("class","globe")
-        .datum(globe)
-        .attr("d",path);
-
-  function RRR() {
+    function RRR() {
+        //console.log(projection([1,1]));
 
         Lk.selectAll("path")
          .data(arclinks)
@@ -290,8 +610,14 @@ var swoosh = d3.svg.line()
 
         Lk.selectAll("path")
         .data(arclinks)
-        .attr("d",function(d){return swoosh(flying_arc(d))})
-        .attr("opacity", function(d) {return fade_at_edge(d);});
+        .attr("class","route")
+
+        .attr("d",function(d){if(d.turntime<=1){var temp = [projection(d.coordinates[0])[0]+d.turntime*((projection(d.coordinates[1]))[0]-(projection(d.coordinates[0]))[0]),projection(d.coordinates[0])[1]+d.turntime*((projection(d.coordinates[1]))[1]-(projection(d.coordinates[0]))[1])] ;d.turntime = d.turntime+0.1;return linePath([projection(d.coordinates[0]),temp]);}
+        else{return linePath([projection(d.coordinates[0]),projection(d.coordinates[1])]);}
+        })
+        .style("stroke",function(d){return compute_color(d.turntime);})
+        ;
+
 
         Lk.selectAll("path")
         .data(arclinks)
@@ -301,12 +627,18 @@ var swoosh = d3.svg.line()
         g.selectAll("path")
         .attr("d",path);
 
-        projection.rotate([(x%360-180),0,0]);
-        sky.rotate([(x%360-180),0,0]);
-        x = x+0.21;
+
+        //Mark();
   };
-  setInterval(RRR,0.01);
+
+  setInterval(RRR,5);
+  //setInterval(RRR,10);
+
 }
- </script>
+}
+</script>
+</div>
+
+
 </body>
 </html>

@@ -103,4 +103,23 @@ class DNSController extends Controller
         # 返回json数据
         return json_encode($bag);
     }
+
+    #取出推荐top5
+    public function top(Request $request)
+	{
+    	$result = \App\Frequencyrecord::orderBy('country',true)->get();
+	//print_r($result);
+    	$n = count($result);
+
+    	if($n > 4)
+    	{
+    		$n = 5;
+    	}
+    	$top = array();
+    	for($i=0; $i<$n; $i++){
+
+        	$top[] = $result[$i]->domain;
+    	}
+    	return json_encode($top);
+	}
 }

@@ -12,6 +12,7 @@
 */
 
 Route::get('front-end/getdo.php', 'DNSController@store');
+Route::get('front-end/gettop.php', 'DNSController@top');
 
 Route::get('/message','MessageController@index');
 Route::post('/message','MessageController@store');

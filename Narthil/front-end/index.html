@@ -1,0 +1,313 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<!--地球的样式表-->
+<style>
+  h1 {
+    position: absolute;
+    top: 500px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    text-align: center;
+    width: 960px;
+  }
+  .country{
+    stroke:white;
+    stroke-width: 2px;
+  }
+  .border{
+    stroke:white;
+    stroke-width: 3px;
+    fill:none;
+  }
+  .globe{
+    stroke:black;
+    stroke-width: 3.5px;
+    fill:none;
+  }
+  .route{
+      stroke:cornflowerblue;
+      stroke-width: 3px;
+      fill:none;
+    }
+</style>
+<!--导入d3-->
+<script src="d3.js"></script>
+<script src="queue.js"></script>
+<script src="topojson.js"></script>
+<!--前后端交互部分的代码-->
+<script>
+  //事件监听器，用于接收后端返回的数据并进行拆分
+  function reqListener() {
+    //这里responsText接收后端返回的数据
+    var response_mock = this.responseText;
+    var dns_records_obj = JSON.parse(response_mock);
+
+    var content = '';                       //拆完之后放进div里的内容
+    var domains = new Array();              //存储json中的域名
+    var longilatitudeArr = [];              //存储json中的经纬度
+
+
+    //拆json字符串
+    for(var j in dns_records_obj){
+      content += 'domain : ' + dns_records_obj[j].domain + '<br/>' + 'ip : ' + dns_records_obj[j].ip + '<br/>' + 'country_name : '  + dns_records_obj[j].country_name + '<br/>' + 'region_name : ' + dns_records_obj[j].region_name + '<br/>' + 'latitude : ' + dns_records_obj[j].latitude + '<br/>' + 'longitude : ' + dns_records_obj[j].longitude + '<br/>' + 'authnss : ' + '<br/>';
+
+      //这里的longilatitude是每一个小的经纬度数组
+      var longilatitude = [];
+      longilatitude[0] = parseFloat(dns_records_obj[j].longitude);      //由字符串转为float
+      longilatitude[1] = parseFloat(dns_records_obj[j].latitude);
+
+      //为了能反映是第几级域名，将domains设置为二维数组
+      domains[j] = new Array();
+      domains[j][0] = dns_records_obj[j].domain;
+      //经纬度同理
+      longilatitudeArr[j] = [];
+      longilatitudeArr[j][0] = [];
+      longilatitudeArr[j][0][0] = longilatitude[0];
+      longilatitudeArr[j][0][1] = longilatitude[1];
+
+      //拆分authnss中的数据
+      for(var i in dns_records_obj[j].authnss) {
+        content += 'domain : ' + dns_records_obj[j].authnss[i].domain + '<br/>';
+        content += 'country_name : ' + dns_records_obj[j].authnss[i].country_name + '<br/>';
+        content += 'region_name : ' + dns_records_obj[j].authnss[i].region_name + '<br/>';
+        content += 'city : ' + dns_records_obj[j].authnss[i].city + '<br/>';
+        content += 'latitude : ' + dns_records_obj[j].authnss[i].latitude + '<br/>';
+        content += 'longitude : ' + dns_records_obj[j].authnss[i].longitude + '<br/>';
+
+        //这里的i是字符串，如果不转成int数组长度会出错
+        i = parseInt(i);
+        domains[j][i+1] = dns_records_obj[j].authnss[i].domain;         //authnss里的domain
+        longilatitudeArr[j][i+1] = [];                                  //authnss里的经纬度
+        longilatitudeArr[j][i+1].push(parseFloat(dns_records_obj[j].authnss[i].longitude));
+        longilatitudeArr[j][i+1].push(parseFloat(dns_records_obj[j].authnss[i].latitude));
+      }
+      content += '<br/>';
+
+    }
+
+    //把经纬度数组传送给地球部分画线
+    createLink(longilatitudeArr);
+    //把content的添加到名为result的div中
+    document.getElementById("result").innerHTML += content;
+}
+
+ //异步传送input中输入的数据
+ function ajaxGet() {
+   var oReq = new XMLHttpRequest();
+   //当XMLHttpRequese加载完成后调用事件监听器
+   oReq.onload = reqListener;
+   var params =  "?quest=" + document.getElementById('domain').value;
+   oReq.open("get","getdo.php" + params, true);
+   oReq.send();
+  }
+
+ </script>
+ </head>
+
+<body>
+  <div id="inquiry">
+  <form method = "post">
+   <input type="text" value="" id="domain"/>
+   <button type="button" onclick="javascript:ajaxGet();">Query</button>
+  </form>
+  </div>
+
+  <div id="result" style="position:absolute; top: 100px;">Here's the result:<br/></div>
+ <div id="Svg">This is a map.</div>
+ <script>
+      //设定画布的长和宽
+      var width = 1280,
+          height = 960;
+
+      //创建一个地球投影
+      var projection = d3.geo.orthographic()//设定正交投影，3D地球
+          .translate([width / 2+400, height / 2+150])//将地球的中心坐标放置在括号内指定位置处
+          .scale(500)//缩放比例
+          .clipAngle(90);
+      //此处创建一个透明地球（天空），用来是两点间的路径立体起来
+      var sky = d3.geo.orthographic()
+          .translate([width / 2+400, height / 2+150])
+          .scale(550)
+          .clipAngle(90);
+
+      //创建画布
+var svg = d3.select("body").append("svg")
+            .attr("width",width+1000)
+            .attr("height",height+1000);
+      //arclinks以gerjson格式存储两点间的信息，用来后续描绘地球路径
+var arclinks = [];
+      //此处创建一个d3.js地理路径生成器
+var path = d3.geo.path()
+    .projection(projection);
+
+var title = d3.select("h1");
+
+var turn_red = [];
+//对于传进来的坐标数组，根据条件一次以geojson格式添加到arclinks中
+function createLink(array)
+{
+    arclinks = [];
+
+    for(var i =0;i<array.length-1;i++)
+    {
+        for(var j = 0;j<array[i].length;j++)
+        {
+            for(var k = 0;k<array[i+1].length;k++)
+            {
+                if(!((array[i][j][0]==0)&&(array[i][j][1]==0))) {
+                  if(array[i][j][0]!=array[i+1][k][0]&&array[i][j][1]!=array[i+1][k][1]) {
+                    var Feature = { type: "LineString", coordinates: [array[i][j],array[i+1][k]]};
+
+                    arclinks.push(Feature);
+                }
+              }
+            }
+        }
+    }
+}
+queue()
+    .defer(d3.json, "world-110m.json")
+    .defer(d3.tsv, "world-country-names.tsv")
+    .await(ready);
+
+function ready(error, world, names) {
+  if (error) throw error;
+
+  var globe = {type: "Sphere"},
+      land = topojson.feature(world, world.objects.land),
+      countries = topojson.feature(world, world.objects.countries).features,
+      borders = topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; }),
+      i = -1,
+      n = countries.length;
+//随机生成两个地球坐标用于之后绘图的测试
+function Mark(){
+    if(arclinks.length<400)
+    {
+        var a = Math.ceil(Math.random()*100%30);
+        var b = Math.ceil(Math.random()*100%30);
+        var source = d3.geo.centroid(countries[a]);
+        var target = d3.geo.centroid(countries[b]);
+        //console.log(source);
+        if(a!=b)
+        {
+            var Feature = { type: "LineString", coordinates: [source,target]};
+            arclinks.push(Feature);
+            turn_red[source] = a;
+            turn_red[target] = b;
+        }
+    }
+}
+//根据数学位置用来计算路劲的透明度，以实现渐入渐出的效果
+function fade_at_edge(d) {
+    var centerPos = projection.invert([width / 2+400, height / 2+150]),
+        arc = d3.geo.greatArc(),
+        start, end;
+    start = d.coordinates[0];
+    end = d.coordinates[1];
+
+    var start_dist = 1.57 - arc.distance({source: start, target: centerPos}),
+        end_dist = 1.57 - arc.distance({source: end, target: centerPos});
+
+    var fade = d3.scale.pow().exponent(2).domain([-.1,0]).range([0,.1])
+    var dist = start_dist < end_dist ? start_dist : end_dist;
+
+    return fade(dist)
+}
+//用来求弧线中间最高点在地球上的地理位置
+function location_along_arc(start,end,loc)
+{
+    var liner = d3.scale.linear()
+                .domain([0,1])
+                .range([start,end]);
+    return liner(0.5);
+}
+
+//起始和末尾两点位于地球上，中间点位于天空中，根据d3.js的projection函数计算其对应的画布平面坐标
+function flying_arc(){
+    var pts = arguments[0];
+    if(pts)
+    {
+    var source = pts.coordinates[0];
+    var target = pts.coordinates[1];
+    var mid = location_along_arc(source,target,0.5);
+    var result = [projection(source),sky(mid),projection(target)];
+    return result;
+    }
+}
+
+//用svg的画线函数以及cardinal插值来画两点间的弧线
+var swoosh = d3.svg.line()
+                .x(function(d){return d[0];})
+                .y(function(d){return d[1];})
+                .interpolate("cardinal")
+                .tension(.0);
+
+
+
+  var x = 0;
+
+  //g用来画地球地理相关图形，Lk用来画单独路径图形
+  var g = svg.append("g");
+  var Lk = svg.append("g");
+
+    //对于arclinks中的没两个点，添加一个相应格式文件，绘制对应的连线
+    arclinks.forEach(function(d)
+        {
+            var a = d.coordinates[0];
+            var b = d.coordinates[1];
+            Lk.append("path")
+                    .attr("class","route")
+                    .attr("d",function(){return swoosh(flying_arc(d));})
+                    .attr("opacity", function(d) {return fade_at_edge(d);});
+        });
+
+    //画大地、边界和描外围圆形
+    g.append("path")
+        .attr("class","land")
+        .datum(land)
+        .attr("d",path)
+        .style("fill",function(d,i){
+        return "#ccc"
+        });
+    g.append("path")
+        .attr("class","border")
+        .datum(borders)
+        .attr("d",path);
+    g.append("path")
+        .attr("class","globe")
+        .datum(globe)
+        .attr("d",path);
+
+  function RRR() {
+        //更新新增数据以及数据变化，同时旋转地球
+        Lk.selectAll("path")
+         .data(arclinks)
+         .enter()
+         .append("path")
+         .attr("class","route");
+
+        Lk.selectAll("path")
+        .data(arclinks)
+        .attr("d",function(d){return swoosh(flying_arc(d))})
+        .attr("opacity", function(d) {return fade_at_edge(d);});
+
+        Lk.selectAll("path")
+        .data(arclinks)
+        .exit()
+            .remove();
+
+        g.selectAll("path")
+        .attr("d",path);
+
+        projection.rotate([(x%360-180),0,0]);
+        sky.rotate([(x%360-180),0,0]);
+        x = x+0.21;
+  };
+  //设置函数的执行间隔
+  setInterval(RRR,1);
+}
+ </script>
+</body>
+</html>
