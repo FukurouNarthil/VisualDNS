@@ -10,18 +10,18 @@
   <script src="./scripts/topojson.js"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <script type="text/javascript" >
-      //显示轮播图
-      function showMessage(obj) {
-        var vDiv = document.getElementById(obj);
+  	//显示轮播图
+    function showMessage(obj) {
+    	var vDiv = document.getElementById(obj);
         vDiv.style.display = 'block';
         var inputBox = document.getElementById("inquiry");
         inputBox.style.top = 100 + "px";
         inputBox.style.right = -200 + "px";
         var domain = document.getElementById("recommend");
         domain.style.display = "block";
-      }
-      //隐藏轮播图
-      function hideMessage() {
+    }
+    //隐藏轮播图
+    function hideMessage() {
         var vDiv = document.getElementById("inquiry");
         vDiv.style.display = 'none';
         var pic = document.getElementById("wrapper");
@@ -32,67 +32,69 @@
         result.style.display = "block";
 		var title = document.getElementById("titles");
 		title.style.display = "none";
-      }
+		var scroll = document.getElementById("body");
+		scroll.style.overflow = "scroll";
+    }
 
-//轮播代码
-      var currentShowPageIndex = 0; //当前页索引
-      var animateTimeout = null;
-      var isWheelAnimating = false; //是否滚动
-      var isWheelUp = function(event) {
+	//轮播代码
+    var currentShowPageIndex = 0; //当前页索引
+    var animateTimeout = null;
+    var isWheelAnimating = false; //是否滚动
+    var isWheelUp = function(event) {
         event = event || window.event;
-        var up = true;
-        if(event.wheelDelta){//IE/Opera/Chrome
-          up = event.wheelDelta / 120 == 1 ? true : false;
-        }else{//Firefox
-          up = event.detail / 3 == 1 ? true : false;
-        }
-        return up;
-      }
-      var changeBar = function(prevIndex, index) {
-        var barUl = document.getElementById('barUl');
-        var barLiList = barUl.getElementsByTagName('li');
-        barLiList[prevIndex].className = "";
-        barLiList[index].className = "active";
-      }
-      var changePage = function(pageIndex) {
-        var showPageUl = document.getElementById('wheelUl');
-        changeBar(currentShowPageIndex, pageIndex);
-        currentShowPageIndex = pageIndex;
-        var left = -(currentShowPageIndex) * 800;
-        showPageUl.style.marginLeft = left + "px";
-        return;
-      }
-      var animate = function(obj, mode, from, to){
-        if(animateTimeout) {
-        clearTimeout(animateTimeout);
-      }
-        if(mode == "left") {
-          if(from > to) {
-              from = from - 50; //
-              obj.style.marginLeft = (from) + "px";
-              setTimeout(function(){
-                animate(obj, mode, from, to);
-            }, 30);
-        }else{
-            isWheelAnimating = false;
-          }
-          return;
-        }
-        if(from < to) {
-          from = from + 50;
-          obj.style.marginLeft = (from) + "px";
-          setTimeout(function(){
-            animate(obj, mode, from, to);
-          }, 30);
-        } else {
-            isWheelAnimating = false;
-          }
-      }
+       	var up = true;
+       	if(event.wheelDelta){//IE/Opera/Chrome
+       		up = event.wheelDelta / 120 == 1 ? true : false;
+       	}else{//Firefox
+       		up = event.detail / 3 == 1 ? true : false;
+       	}
+        	return up;
+    }
+    var changeBar = function(prevIndex, index) {
+       	var barUl = document.getElementById('barUl');
+       	var barLiList = barUl.getElementsByTagName('li');
+       	barLiList[prevIndex].className = "";
+       	barLiList[index].className = "active";
+   	}
+   	var changePage = function(pageIndex) {
+       	var showPageUl = document.getElementById('wheelUl');
+       	changeBar(currentShowPageIndex, pageIndex);
+       	currentShowPageIndex = pageIndex;
+       	var left = -(currentShowPageIndex) * 800;
+       	showPageUl.style.marginLeft = left + "px";
+       	return;
+   	}
+   	var animate = function(obj, mode, from, to){
+       	if(animateTimeout) {
+       		clearTimeout(animateTimeout);
+   		}
+      	if(mode == "left") {
+       		if(from > to) {
+              	from = from - 50; //
+              	obj.style.marginLeft = (from) + "px";
+           		setTimeout(function(){
+          	     	animate(obj, mode, from, to);
+            	}, 30);
+        	}else{
+            	isWheelAnimating = false;
+          	}
+          		return;
+        	}
+        	if(from < to) {
+          		from = from + 50;
+          		obj.style.marginLeft = (from) + "px";
+          		setTimeout(function(){
+            		animate(obj, mode, from, to);
+          		}, 30);
+        	}else{
+            	isWheelAnimating = false;
+          	}
+    }
 
 
-      //鼠标滚动
-      var mouseWheel = function(event) {
-        if(isWheelAnimating) {
+    //鼠标滚动
+    var mouseWheel = function(event) {
+    	if(isWheelAnimating) {
             return;
         }
         isWheelAnimating = true;
@@ -103,45 +105,45 @@
         var showPageLiListLength = showPageLiList.length;
         var wheelWrapperLeft = parseInt(document.getElementById('wheelWrapper').offsetLeft);
         if(wheelUp && currentShowPageIndex < showPageLiListLength - 1) {
-          changeBar(currentShowPageIndex, currentShowPageIndex + 1);
-          currentShowPageIndex ++;
-          var top = -(currentShowPageIndex) * 800;
-          //animate(showPageUl, "right", -(currentShowPageIndex - 1) * 1000, -(currentShowPageIndex - 1) * 1000);
-          var from = -(currentShowPageIndex - 1) * 800;
-          var to = -(currentShowPageIndex) * 800;
-          animate(showPageUl, "left", from, to);
-          return;
+        	changeBar(currentShowPageIndex, currentShowPageIndex + 1);
+          	currentShowPageIndex ++;
+          	var top = -(currentShowPageIndex) * 800;
+          	var from = -(currentShowPageIndex - 1) * 800;
+          	var to = -(currentShowPageIndex) * 800;
+          	animate(showPageUl, "left", from, to);
+          	return;
         }
         if(!wheelUp && currentShowPageIndex > 0) {
-          changeBar(currentShowPageIndex, currentShowPageIndex - 1);
-          currentShowPageIndex --;
-          var from = -(currentShowPageIndex + 1) * 800;
-          var to = -(currentShowPageIndex) * 800;
-          animate(showPageUl, "right", from, to);
-          return;
+          	changeBar(currentShowPageIndex, currentShowPageIndex - 1);
+          	currentShowPageIndex --;
+          	var from = -(currentShowPageIndex + 1) * 800;
+          	var to = -(currentShowPageIndex) * 800;
+          	animate(showPageUl, "right", from, to);
+          	return;
         }
         isWheelAnimating = false;
-      };
-      if(document.addEventListener){
-        document.addEventListener('DOMMouseScroll',function(event) { mouseWheel(event); },false);
-      }
-      document.onmousewheel = function(event) { mouseWheel(event); }
-      window.onload = function(){
-      var barUl = document.getElementById('barUl');
-      var barLiList = barUl.getElementsByTagName('li');
-      for(var i=0,length=barLiList.length; i<length; i++) {
-        (function(index){
-            barLiList[index].onclick = function(){
-            changePage(index);
-            };
-        })(i);
-      }
-   }
+    };
+    if(document.addEventListener){
+    	document.addEventListener('DOMMouseScroll',function(event) { mouseWheel(event); },false);
+    }
+    document.onmousewheel = function(event) { 
+    	mouseWheel(event); 
+    }
+    window.onload = function(){
+      	var barUl = document.getElementById('barUl');
+      	var barLiList = barUl.getElementsByTagName('li');
+      	for(var i=0,length=barLiList.length; i<length; i++) {
+        	(function(index){
+            	barLiList[index].onclick = function(){
+            	changePage(index);
+            	};
+        	})(i);
+      	}
+   	}
 
     //ajax代码，前后端交互部分
 	function showRecommend(){
 		var response_mock = this.responseText;
-		console.log(response_mock);
 		var topDomain = JSON.parse(response_mock);
 		var content = "";
 		for(var i in topDomain) {
@@ -153,15 +155,15 @@
 	var switchx = 1;
 	
     $(function(){
-	$("#domain").click(function(){
-		if(switchx){
-		var xhr = new XMLHttpRequest();
-		xhr.onload = showRecommend;
-		xhr.open("GET","gettop.php",true);
-		xhr.send();
-		switchx = 0;
-}
-	});
+		$("#domain").click(function(){
+			if(switchx){
+			var xhr = new XMLHttpRequest();
+			xhr.onload = showRecommend;
+			xhr.open("GET","gettop.php",true);
+			xhr.send();
+			switchx = 0;
+			}
+		});
 	});
 	
 
@@ -174,142 +176,116 @@
 	}
 
 
-   //事件监听器，用于接收后端返回的数据并进行拆分
-  function reqListener() {
-    //这里responsText接收后端返回的数据
-    var response_mock = this.responseText;
-    console.log(response_mock);
-    var dns_records_obj = JSON.parse(response_mock);
-    //console.log(dns_records_obj);
+   	//事件监听器，用于接收后端返回的数据并进行拆分
+  	function reqListener() {
+    	//这里responsText接收后端返回的数据
+    	var response_mock = this.responseText;
+    	//console.log(response_mock);
+    	var dns_records_obj = JSON.parse(response_mock);
+    	//console.log(dns_records_obj);
 
-    var content = '';                       //拆完之后放进div里的内容
-    var domains = new Array();              //存储json中的域名
-    var longilatitudeArr = [];              //存储json中的经纬度
-    var countryArr = [];                    //country_name in JSON
-    var regionArr = [];                     //region_name in JSON
+    	var content = 'Here\'s the result: <br/>' ;                       //拆完之后放进div里的内容
+    	var domains = new Array();              //存储json中的域名
+    	var longilatitudeArr = [];              //存储json中的经纬度
+    	var countryArr = [];                    //country_name in JSON
+    	var regionArr = [];                     //region_name in JSON
 
-    var totalCountries;
+    	var totalCountries;
 
-    totalCountries = dns_records_obj.pop();
+    	totalCountries = dns_records_obj.pop();
 
 
-    //拆json字符串
-    for(var j in dns_records_obj){
-      content += 'domain : ' + dns_records_obj[j].domain + '<br/>' + 'ip : ' + dns_records_obj[j].ip + '<br/>' + 'country_name : '  + dns_records_obj[j].country_name + '<br/>' + 'region_name : ' + dns_records_obj[j].region_name + '<br/>' + 'latitude : ' + dns_records_obj[j].latitude + '<br/>' + 'longitude : ' + dns_records_obj[j].longitude + '<br/>' + 'authnss : ' + '<br/>';
+    	//拆json字符串
+    	for(var j in dns_records_obj){
+    		content += '第' + j + '级域名查询结果如下： <br/>';
+      		content += '第一级域名为： ' + dns_records_obj[j].domain + '，它的ip是 : ' + dns_records_obj[j].ip + '<br/>' + '本次查询的服务器所在的国家为：'  + dns_records_obj[j].country_name + '，地区为： ' + dns_records_obj[j].region_name + '，经纬度为：(' + dns_records_obj[j].latitude + ', ' + dns_records_obj[j].longitude + '<br/>' + '指定本级域名由哪个域名服务器解析的NS服务器信息如下：' + '<br/>';
 
-      //这里的longilatitude是每一个小的经纬度数组
-      var longilatitude = [];
-      longilatitude[0] = parseFloat(dns_records_obj[j].longitude);      //由字符串转为float
-      longilatitude[1] = parseFloat(dns_records_obj[j].latitude);
+      		//这里的longilatitude是每一个小的经纬度数组
+      		var longilatitude = [];
+      		longilatitude[0] = parseFloat(dns_records_obj[j].longitude);      //由字符串转为float
+      		longilatitude[1] = parseFloat(dns_records_obj[j].latitude);
 
-      //为了能反映是第几级域名，将domains设置为二维数组
-      domains[j] = new Array();
-      domains[j][0] = dns_records_obj[j].domain;
-      //经纬度同理
-      longilatitudeArr[j] = [];
-      longilatitudeArr[j][0] = [];
-      longilatitudeArr[j][0][0] = longilatitude[0];
-      longilatitudeArr[j][0][1] = longilatitude[1];
-      //and country_name or region_name
-      countryArr[j] = [];
-      countryArr[j][0] = dns_records_obj[j].country_name;
-      regionArr[j] = [];
-      regionArr[j][0] = dns_records_obj[j].region_name;
+      		//经纬度数组
+      		longilatitudeArr[j] = [];
+      		longilatitudeArr[j][0] = [];
+      		longilatitudeArr[j][0][0] = longilatitude[0];
+      		longilatitudeArr[j][0][1] = longilatitude[1];
+      		//and country_name or region_name
+      		countryArr[j] = [];
+      		countryArr[j][0] = dns_records_obj[j].country_name;
+      		regionArr[j] = [];
+      		regionArr[j][0] = dns_records_obj[j].region_name;
 
-      //拆分authnss中的数据
-      for(var i in dns_records_obj[j].authnss) {
-        content += 'domain : ' + dns_records_obj[j].authnss[i].domain + '<br/>';
-        content += 'country_name : ' + dns_records_obj[j].authnss[i].country_name + '<br/>';
-        content += 'region_name : ' + dns_records_obj[j].authnss[i].region_name + '<br/>';
-        content += 'city : ' + dns_records_obj[j].authnss[i].city + '<br/>';
-        content += 'latitude : ' + dns_records_obj[j].authnss[i].latitude + '<br/>';
-        content += 'longitude : ' + dns_records_obj[j].authnss[i].longitude + '<br/>';
+      		//拆分authnss中的数据
+      		for(var i in dns_records_obj[j].authnss) {
+        		content += '第' + i + '个NS服务器为：' + dns_records_obj[j].authnss[i].domain + '<br/>';
+        		content += '它所在的国家为 : ' + dns_records_obj[j].authnss[i].country_name;
+        		content += '，地区为 : ' + dns_records_obj[j].authnss[i].region_name;
+        		content += '，城市为 : ' + dns_records_obj[j].authnss[i].city + '<br/>';
+        		content += '经纬度为 : (' + dns_records_obj[j].authnss[i].latitude + ', ' + dns_records_obj[j].authnss[i].longitude + '<br/>';
 
-        //这里的i是字符串，如果不转成int数组长度会出错
-        i = parseInt(i);
-        domains[j][i+1] = dns_records_obj[j].authnss[i].domain;         //authnss里的domain
-        longilatitudeArr[j][i+1] = [];                                  //authnss里的经纬度
-        longilatitudeArr[j][i+1].push(parseFloat(dns_records_obj[j].authnss[i].longitude));
-        longilatitudeArr[j][i+1].push(parseFloat(dns_records_obj[j].authnss[i].latitude));
-        countryArr[j][i+1] = dns_records_obj[j].authnss[i].country_name;
-        regionArr[j][i+1] = dns_records_obj[j].authnss[i].region_name;
-      }
-      content += '<br/>';
-
-    }
+        		//这里的i是字符串，如果不转成int数组长度会出错
+        		i = parseInt(i);
+        		longilatitudeArr[j][i+1] = [];                                  //authnss里的经纬度
+        		longilatitudeArr[j][i+1].push(parseFloat(dns_records_obj[j].authnss[i].longitude));
+        		longilatitudeArr[j][i+1].push(parseFloat(dns_records_obj[j].authnss[i].latitude));
+        		countryArr[j][i+1] = dns_records_obj[j].authnss[i].country_name;
+        		regionArr[j][i+1] = dns_records_obj[j].authnss[i].region_name;
+      		}
+      		content += '<br/>';
+		
+    	}
+		
 	
-	for(var i in totalCountries) {
-	var temp = "";
-		temp = i + " : " + totalCountries[i] + "<br/>";
-	content += temp;		
-}
+		for(var i in totalCountries) {
+			var temp = "";
+			temp = i + " : " + totalCountries[i] + "<br/>";
+			content += temp;		
+		}
 	
+	console.log(content);
+    	var temp = new Array();
+    	//create a key-value Array
 
-    var temp = new Array();
-    //create a key-value Array
+    	function createArray() {
+    		for(var i in countryArr) {
+        		i = parseInt(i);
+	
+        		//temp[i] = new Array();
+        		for(var j in countryArr[i]) {
+          			var data = {level: i, country_name: countryArr[i][j], region_name: regionArr[i][j], coordinate: longilatitudeArr[i][j]};   
+          			temp.push(data);
+      			}
+    		}
+  		}
+    	createArray();
 
-    function createArray() {
-      //var temp = new Array();
-      //var data = new Array();
-      for(var i in countryArr) {
-        i = parseInt(i);
-        temp[i] = new Array();
-        for(var j in countryArr[i]) {
-          var data = new Array();
-          data.push({
-            "country_name" : countryArr[i][j]
-          });
-          data.push({
-            "region_name" : regionArr[i][j]
-          });
-          data.push({
-            "coordinate" : longilatitudeArr[i][j]
-          });
-          //console.log(data);
-          temp[i].push(data);
-      }
-    }
-  }
-      createArray();
+    	showMap(longilatitudeArr, temp);
+    	//把content的添加到名为result的div中
+    	document.getElementById("result").innerHTML += content;
+	}
 
-      //console.log(temp[0][0]);
-      var cor = new Array();
-      for(var i in temp){
-      	cor[i] = new Array();
-        for(var j in temp[i]){
-            cor[i][j] = temp[i][j][2].coordinate;
+ 	//异步传送input中输入的数据
+ 	function ajaxGet() {
+   		var oReq = new XMLHttpRequest();
+   		//当XMLHttpRequese加载完成后调用事件监听器
+   		oReq.onload = reqListener;
+   		var params =  "?quest=" + document.getElementById('domain').value;
+   		oReq.open("get","getdo.php" + params, true);
+   		oReq.send();
+  	}
 
-        }
-      }
-      //console.log("see");
-      //console.log(cor);
-      //console.log(longilatitudeArr);
-    //把经纬度数组传送给地球部分画线
-    showMap(cor);
-    //把content的添加到名为result的div中
-    document.getElementById("result").innerHTML += content;
-}
-
- //异步传送input中输入的数据
- function ajaxGet() {
-   var oReq = new XMLHttpRequest();
-   //当XMLHttpRequese加载完成后调用事件监听器
-   oReq.onload = reqListener;
-   var params =  "?quest=" + document.getElementById('domain').value;
-   oReq.open("get","getdo.php" + params, true);
-   oReq.send();
-  }
-
-    </script>
-    <style type="text/css" >
-      body {
-        margin:0;
+  </script>
+  <style type="text/css" >
+    body {
+    	margin:0;
+	max-height: 1227px;
         background:url(./img/001) no-repeat;
         background-size:cover;
         overflow: hidden;
-      }
+    }
 
-      #titles {
+    #titles {
         text-align: center;
         width: 400px;
         margin: auto;
@@ -317,35 +293,41 @@
         bottom: 0;
         left: 0;
         right: 0;
-      }
-      #titles h2{
+    }
+    #titles h2{
         color: #6495ED;
-      }
-      #titles h3{
+    }
+    #titles h3{
         color: #6495ED;
-      }
-      ul { list-style:none; margin:0; padding:0; }
-      li { float:left;}
-      .input-group {
+    }
+    ul { 
+    	list-style:none; 
+    	margin:0; 
+    	padding:0; 
+    }
+    li { 
+    	float:left;
+    }
+    .input-group {
         width: 400px;
         margin: auto;
         top: 300px;
         bottom: 0;
         left: 0;
         right: 0;
-      }
-      #domain {
+    }
+    #domain {
         width: 335px;
         float: left;
-      }
-      .input-group span {
+    }
+    .input-group span {
         width: 60px;
         height: 34px;
-      }
-      .input-group-addon {
+    }
+    .input-group-addon {
         cursor: pointer;
-      }
-      #wrapper {
+    }
+    #wrapper {
         width: 800px;
         height: 500px;
         left:40%;
@@ -353,26 +335,28 @@
         position: relative;
         display: none;
         overflow: hidden;
-      }
-      #wheelWrapper {
+    }
+    #wheelWrapper {
       width: 800px;
       height:500px;
       position:fixed;
       overflow:hidden;
-      }
-      #wheelUl {
+    }
+    #wheelUl {
         width:2450px; height:500px;
-      }
-      #wheelUl {
-        list-style: none;
+    }
+    #wheelUl {
+     	list-style: none;
         padding: 0;
         margin: 0;
-      }
-      #barUl {
+    }
+    #barUl {
         display: none;
-      }
-      #wheelUl>li { width:800px; }
-      .wheel {
+    }
+    #wheelUl>li { 
+    	width:800px; 
+    }
+    .wheel {
         width: 800px; height: 500px;;
         border-radius:10px;
         -webkit-border-radius:10px;
@@ -380,70 +364,98 @@
         line-height:300px;
         font-size:100px;
         text-align:center;
-      }
-      .wheel img{
+    }
+    .wheel img{
         width: 800px;
         height: 500px;
-      }
-      #recommend {
+    }
+    #recommend {
         width: 30%;
         height: 500px;
         position: relative;
         left: 7%;
         bottom: 100px;
-        background-color: white;
+        color: white;
         display: none;
-      }
-      #map {
+    }
+    #map {
         width: 80%;
         height: 80%;
         float: right;
         top:5%;
         right:10%;
-
-      }
-      svg {
+	}
+    svg {
         top: 5%;
-      }
+    }
 
-      #result {
-        width: 30%;
+    #result {
+        width: 10%;
         height: 800px;
         position: absolute;
         top: 50px;
         left: 5%;
         display: none;
         color: white;
-      }
+    }
 
-      h1 {
+    h1 {
         position: absolute;
         top: 500px;
         font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
         font-size: 18px;
         text-align: center;
         width: 960px;
-      }
-      .country{
+    }
+    .country{
         stroke:white;
         stroke-width: 2px;
-      }
-      .border{
+    }
+    .border{
         stroke:white;
         stroke-width: 3px;
         fill: none;
-      }
-      .globe{
+    }
+    .globe{
         stroke:black;
         stroke-width: 3.5px;
         fill:none;
-      }
-      .route{
-          stroke:cornflowerblue;
-          stroke-width: 3px;
-          fill:none;
-        }
-    </style>
+    }
+    .route{
+        stroke:cornflowerblue;
+        stroke-width: 3px;
+        fill:none;
+    }
+	text{ 
+		text-shadow:3px 3px 5px #FFEFD5; 
+	}
+	.tip{
+		position: absolute;
+		width: 180px;
+		height: 220px;
+		text-align: left;
+		line-height: 25px;
+		font-family: arial;
+		font-size: 14px;
+		color: white;
+		background-color:black;
+		border-width: 2px solid black;
+		border-radius: 5px;
+		padding:10px;
+	}
+	.tip:after {
+		content: '';
+		position: absolute;
+		bottom: 100%;
+		left: 20%;
+		margin-left: -8px;
+		width: 0; 
+		height: 0;
+		border-bottom: 12px solid #000000;
+		border-right: 12px solid transparent;
+		border-left: 12px solid transparent;
+	}
+  </style>
 </head>
 <body id="body">
   <div class="input-group" id="inquiry">
@@ -456,9 +468,12 @@
     <h3>CYBERSPACE</h3>
     <h2>BORDERLESS</h2>
   </div>
-
+<div id="section">
+</div>
   <!--domain top5-->
-  <div id="recommend"></div>
+  <div id="recommend">
+  	<p>在这里我们列出了查询记录中经过外国次数最多的5个域名作为推荐：</p>
+  </div>
 
   <div id="wrapper">
     <div id="wheelWrapper">
@@ -495,7 +510,7 @@
   <div id="map" style="display:none;">
     <script>
 
-   function showMap(array) {
+   function showMap(larray, mapmarks) {
             var width = 1280,
 height = 800;
 var start_update = 0;
@@ -529,13 +544,13 @@ function createLink()
 {
   //console.log(array);
     arclinks = [];
-    for(var i =0;i<array.length-1;i++)
+    for(var i =0;i<larray.length-1;i++)
     {
-        for(var j = 0;j<array[i].length;j++)
+        for(var j = 0;j<larray[i].length;j++)
         {
-            for(var k = 0;k<array[i+1].length;k++)
+            for(var k = 0;k<larray[i+1].length;k++)
             {
-                var Feature = { type: "LineString",turntime:0, coordinates: [array[i][j],array[i+1][k]]};
+                var Feature = { type: "LineString",turntime:0, coordinates: [larray[i][j],larray[i+1][k]]};
 		//var temp = {name:"ds",coordinates:[x,y]};
                 arclinks.push(Feature);
                 //updatelink();
@@ -563,12 +578,17 @@ queue()
 
 function ready(error, world, names){
     if (error) throw error;
+	 var tip =d3.select("#section")
+	          .append("div")
+			  .attr("class","tip")
+			  .style("opacity",0);
     var land = topojson.feature(world, world.objects.land),
       countries = topojson.feature(world, world.objects.countries).features,
       borders = topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; }),
       i = -1,
       n = countries.length;
-
+var S_t = d3.set([]);
+var stv = [];
     countries = countries.filter(function(d) {
     return names.some(function(n) {
       if (d.id == n.id) return d.name = n.name;
@@ -579,6 +599,7 @@ function ready(error, world, names){
     var x = 0;
     var g = svg.append("g");
     var Lk = svg.append("g");
+var Cr = svg.append("g");
     arclinks.forEach(function(d)
     {
         var a = d.coordinates[0];
@@ -599,9 +620,37 @@ function ready(error, world, names){
         .attr("class","border")
         .datum(borders)
         .attr("d",path);
+g.selectAll("path")
+        .attr("d",path);
+
+for(var i =0;i<mapmarks.length;i++)
+{
+	if(!S_t.has(mapmarks[i].coordinate))
+	{
+		S_t.add(mapmarks[i].coordinate);
+		var temp={level:[mapmarks[i].level+1],country_name:mapmarks[i].country_name,region_name:mapmarks[i].region_name,coordinate:mapmarks[i].coordinate,count:1};
+		//var data = {level: i, country_name: countryArr[i][j], region_name: regionArr[i][j], coordinate: longilatitudeArr[i][j]};
+		stv.push(temp);
+	}
+	else
+	{
+		for(var j =0;j<stv.length;j++)
+		{
+			if(mapmarks[i].region_name == 	stv[j].region_name)
+			{
+				if(stv[j].level.indexOf(mapmarks[i].level+1)==-1){stv[j].level.push(mapmarks[i].level+1);}	
+				stv[j].count++;
+				break;
+			}
+		}
+	}
+}
+//console.log(stv);
+
+
     function RRR() {
         //console.log(projection([1,1]));
-
+	
         Lk.selectAll("path")
          .data(arclinks)
          .enter()
@@ -623,15 +672,83 @@ function ready(error, world, names){
         .data(arclinks)
         .exit()
             .remove();
+//var data = {level: i, country_name: countryArr[i][j], region_name: regionArr[i][j], coordinate: longilatitudeArr[i][j]};
+	Cr.selectAll("circle")
+        .data(stv)
+        .enter()
+        .append("circle")
+        .attr("cx",function(d){return projection(d.coordinate)[0]})
+        .attr("cy",function(d){return projection(d.coordinate)[1]})
+        .attr("r",0)
+        .attr("stroke","white")
+        .attr("fill","steelblue")
+        .style("opacity",0)
+        .transition()
+        .duration(5000)
+        .ease("elastic")
+        .style("opacity",function(){return 1;})
+        .attr("r",8);
+        
+        Cr.selectAll("circle")
+        .data(stv)
+        .exit()
+            .remove();
+        
+            Cr.selectAll("circle")
+	
+    .on("mouseover",function(d,i){
+	var t = this;
+	//console.log(t);
+        d3.select(this)
+        .transition().duration(1000).ease("elastic")
+        .attr("r",12)
+        .attr("fill","#FFB5C5");
 
-        g.selectAll("path")
-        .attr("d",path);
+        tip
+        .html(function(){var strr="";for(var j=0;j<stv.length;j++){
+	var tcx = parseInt(t.cx.baseVal.value);
+	var tcy = parseInt(t.cy.baseVal.value);
 
 
-        //Mark();
+	if(tcx==parseInt(projection(stv[j].coordinate)[0])&&tcy==parseInt(projection(stv[j].coordinate)[1])){
+
+	for(var k=0;k<stv[j].level.length;k++)
+{
+	if(k!=0){strr = strr+","+stv[j].level[k]+" level domain";}
+	else{strr = strr+stv[j].level[k]+" level domain";}
+}
+	strr = strr+"\n"+"numberOfpassed:"+String(stv[j].count)+"\n"+"country_name:"+stv[j].country_name+"\n"+"region_name:"+stv[j].region_name+"\nlongitude:"+String(stv[j].coordinate[0])+"\nlatitude:"+String(stv[j].coordinate[1]);
+	break;
+}
+
+
+}return strr;})
+        
+				   .style("left",(d3.event.pageX-40)+"px")
+				   .style("top",(d3.event.pageY+40)+"px")
+				   .style("opacity",0.6);
+    })
+    .on("mousemove",function(d,i){
+		   tip.style("left",(d3.event.pageX-30)+"px")
+			  .style("top",(d3.event.pageY+40)+"px")})
+    .on("mouseout",function(d,i){
+		   tip
+           .style("opacity",0)
+           
+           tip.style("left","0px")
+				   .style("top","0px")
+           
+           
+			d3.select(this)
+			 .transition().duration(1000).ease("elastic")
+			 .attr("fill","steelblue")
+			 .attr("r",8);
+
+		   })
+        
   };
 
-  setInterval(RRR,5);
+  setInterval(RRR,50);
   //setInterval(RRR,10);
 
 }
